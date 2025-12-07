@@ -1,59 +1,194 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Student Attendance System — System Flow Documentation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 1. Overview
+A Laravel-based system for managing students, classes, teachers, and attendance records. Includes admin, teacher, and student roles with secure authentication.
+---
+## 2. System Architecture
+### 2.1 MVC Components
 
-## About Laravel
+- Models: User, Student, Teacher, Class, Attendance
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Controllers: AdminController, ClassController, StudentController, AttendanceController, etc.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Views: Blade templates for dashboards and CRUD pages
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Routes: Web + API
+---
+## 3. High-Level System Flow
+### 3.1 Authentication Flow
+```
+User visits login page
+        ↓
+User submits email + password
+        ↓
+Laravel Auth checks credentials
+        ↓
+Redirect based on role:
+    - Admin → Admin Dashboard
+    - Teacher → Teacher Dashboard
+    - Student → Student Attendance Profile
+```
+---
+### 3.2 Admin System Flow
 
-## Learning Laravel
+**Admin tasks**
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- Manage Teachers
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Manage Students
 
-## Laravel Sponsors
+- Manage Classes
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Assign teachers to classes
 
-### Premium Partners
+````
+Admin login
+   ↓
+Admin Dashboard
+   ↓
+Select Module:
+   - Student Management
+   - Teacher Management
+   - Class Management
+   ↓
+CRUD operations
+   ↓
+Database updated using Models + Migrations
+````
+---
+### 3.3 Teacher Attendance Flow
+```
+Teacher login
+   ↓
+Teacher Dashboard
+   ↓
+Select Class
+   ↓
+System loads class students (WHERE class_id = X)
+   ↓
+Teacher marks:
+   - Present
+   - Absent
+   - Late
+   ↓
+Submit attendance
+   ↓
+Records saved in attendance table
+```
+---
+### 3.4 Student Flow
+```
+Student login
+   ↓
+Student Dashboard
+   ↓
+View personal information
+   ↓
+View attendance records (filtered by student_id)
+   ↓
+View attendance percentage
+```
+---
+## 4. Database Interaction Flow
+**When teacher selects a class:**
+```
+ClassController → Class Model → students table → return list
+```
+**When marking attendance:**
+```
+AttendanceController
+   ↓ validate request
+   ↓ save multiple attendance rows
+   ↓ return success response
+```
+**When admin creates a student:**
+```
+AdminController → create user → create student → link class
+```
+---
+## 5. Security Flow
+**5.1 Authentication Middleware**
+```
+auth → ensures login required
+```
+**5.2 Role Middleware**
+```
+role:admin → admin-only pages  
+role:teacher → teacher-only pages  
+role:student → student-only pages
+```
+**5.3 CSRF Protection**
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Laravel automatically protects POST/PUT/PATCH/DELETE requests.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Full User Flow
 
-## Code of Conduct
+## Admin User Flow
+```
+Login → Admin Dashboard
+     ↓
+View total students, teachers, classes
+     ↓
+Manage:
+   - Students
+       - Add Student
+       - Edit Student
+       - Delete Student
+   - Teachers
+       - Add Teacher
+       - Assign Class
+   - Classes
+       - Add Class
+       - Assign Teacher
+```
+Admin can:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- Create user accounts
 
-## Security Vulnerabilities
+- Assign roles
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Control all system data
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Teacher User Flow
+```
+Login → Teacher Dashboard
+     ↓
+View assigned classes
+     ↓
+Select a class
+     ↓
+View student list
+     ↓
+Mark attendance (present/absent/late)
+     ↓
+Submit attendance
+     ↓
+View attendance summary for classes
+```
+Teacher cannot:
+
+- Modify students outside their classes
+
+- Access admin pages
+
+---
+## Student User Flow
+```
+Login → Student Dashboard
+     ↓
+View personal profile
+     ↓
+View attendance history
+     ↓
+See attendance percentage
+```
+Students can only:
+
+- See their own attendance
+
+- Update profile (optional)
+---
