@@ -15,6 +15,25 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @if(Auth::user()->isAdmin())
+                        <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                            {{ __('Admin Panel') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.teachers.index')" :active="request()->routeIs('admin.teachers.*')">
+                            {{ __('Teachers') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.students.index')" :active="request()->routeIs('admin.students.*')">
+                            {{ __('Students') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.classes.index')" :active="request()->routeIs('admin.classes.*')">
+                            {{ __('Classes') }}
+                        </x-nav-link>
+                    @elseif(Auth::user()->isTeacher())
+                        <x-nav-link :href="route('teacher.dashboard')" :active="request()->routeIs('teacher.*')">
+                            {{ __('My Classes') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +89,25 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @if(Auth::user()->isAdmin())
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                    {{ __('Admin Panel') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.teachers.index')" :active="request()->routeIs('admin.teachers.*')">
+                    {{ __('Teachers') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.students.index')" :active="request()->routeIs('admin.students.*')">
+                    {{ __('Students') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.classes.index')" :active="request()->routeIs('admin.classes.*')">
+                    {{ __('Classes') }}
+                </x-responsive-nav-link>
+            @elseif(Auth::user()->isTeacher())
+                <x-responsive-nav-link :href="route('teacher.dashboard')" :active="request()->routeIs('teacher.*')">
+                    {{ __('My Classes') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

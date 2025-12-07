@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClassRoom;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ClassController extends Controller
@@ -12,7 +14,8 @@ class ClassController extends Controller
      */
     public function index()
     {
-        //
+        $classes = ClassRoom::with('teacher', 'students')->paginate(15);
+        return view('admin.classes.index', compact('classes'));
     }
 
     /**
@@ -20,7 +23,8 @@ class ClassController extends Controller
      */
     public function create()
     {
-        //
+        $teachers = User::where('role', 'teacher')->get();
+        return view('admin.classes.create', compact('teachers'));
     }
 
     /**
@@ -28,7 +32,14 @@ class ClassController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:classes,name',
+            'teacher_id' => 'nullable|exists:users,id',
+        ]);
+
+        ClassRoom::create($validated);
+
+        return redirect()->route('admin.classes.index')->with('success', 'Class created successfully.');
     }
 
     /**
@@ -36,7 +47,8 @@ class ClassController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $class = ClassRoom::with('teacher', 'students', 'attendance')->findOrFail($id);
+        return view('admin.classes.show', compact('class'));
     }
 
     /**
@@ -44,7 +56,9 @@ class ClassController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $class = ClassRoom::findOrFail($id);
+        $teachers = User::where('role', 'teacher')->get();
+        return view('admin.classes.edit', compact('class', 'teachers'));
     }
 
     /**
@@ -52,7 +66,16 @@ class ClassController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $class = ClassRoom::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:classes,name,' . $id,
+            'teacher_id' => 'nullable|exists:users,id',
+        ]);
+
+        $class->update($validated);
+
+        return redirect()->route('admin.classes.index')->with('success', 'Class updated successfully.');
     }
 
     /**
@@ -60,6 +83,9 @@ class ClassController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $class = ClassRoom::findOrFail($id);
+        $class->delete();
+
+        return redirect()->route('admin.classes.index')->with('success', 'Class deleted successfully.');
     }
 }
